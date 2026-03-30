@@ -1,0 +1,7 @@
+{
+  "name": "FamilyCircle",
+  "description": "A private social space for families to share moments, updates, and memories securely.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user profile in the family network.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique ID of the user." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "photoURL": { "type": "string", "format": "uri", "description": "The user's profile photo URL." },
+        "familyId": { "type": "string", "description": "The ID of the family the user belongs to." },
+        "role": { "type": "string", "enum": ["admin", "member"], "description": "The user's role in the family." }
+      },
+      "required": ["uid", "displayName", "email"]
+    },
+    "Family": {
+      "title": "Family",
+      "description": "A family group.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the family." },
+        "name": { "type": "string", "description": "The name of the family." },
+        "inviteCode": { "type": "string", "description": "A unique code to join the family." },
+        "ownerId": { "type": "string", "description": "The UID of the family creator." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the family was created." }
+      },
+      "required": ["id", "name", "inviteCode", "ownerId"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A post shared in the family feed.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the post." },
+        "text": { "type": "string", "description": "The text content of the post." },
+        "imageUrl": { "type": "string", "format": "uri", "description": "An optional image URL." },
+        "authorId": { "type": "string", "description": "The UID of the post author." },
+        "authorName": { "type": "string", "description": "The name of the post author." },
+        "authorPhoto": { "type": "string", "format": "uri", "description": "The photo URL of the post author." },
+        "familyId": { "type": "string", "description": "The ID of the family this post belongs to." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the post was created." },
+        "likes": { "type": "array", "items": { "type": "string" }, "description": "List of UIDs who liked the post." }
+      },
+      "required": ["id", "authorId", "familyId", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A comment on a post.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the comment." },
+        "postId": { "type": "string", "description": "The ID of the post being commented on." },
+        "text": { "type": "string", "description": "The text content of the comment." },
+        "authorId": { "type": "string", "description": "The UID of the comment author." },
+        "authorName": { "type": "string", "description": "The name of the comment author." },
+        "authorPhoto": { "type": "string", "format": "uri", "description": "The photo URL of the comment author." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the comment was created." }
+      },
+      "required": ["id", "postId", "authorId", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents."
+    },
+    "/families/{familyId}": {
+      "schema": "Family",
+      "description": "Family group documents."
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Family feed posts."
+    },
+    "/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Comments on posts."
+    }
+  }
+}
