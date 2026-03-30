@@ -80,7 +80,7 @@ export default function PostItem({ post }: PostItemProps) {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 to-rose-500 p-[2px]">
             <img
-              src={post.authorPhoto || ''}
+              src={post.authorPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.authorName || 'User')}&background=random`}
               alt={post.authorName}
               className="w-full h-full rounded-full border-2 border-white object-cover"
               referrerPolicy="no-referrer"
@@ -211,7 +211,7 @@ export default function PostItem({ post }: PostItemProps) {
 
         <form onSubmit={handleAddComment} className="flex gap-2 mt-2 items-center">
           <img
-            src={auth.currentUser?.photoURL || ''}
+            src={auth.currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.currentUser?.displayName || 'User')}&background=random`}
             alt="You"
             className="w-6 h-6 rounded-full object-cover"
             referrerPolicy="no-referrer"

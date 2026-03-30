@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { db, auth, collection, addDoc, serverTimestamp } from '../firebase';
 import { Image, Send, Camera, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { compressImage, uploadImageToImgBB } from '../lib/imageUtils';
 
 interface CreatePostProps {
   familyId: string;
@@ -37,25 +38,28 @@ export default function CreatePost({ familyId }: CreatePostProps) {
       setShowImageInput(false);
     } catch (err) {
       console.error("Error creating post:", err);
+      setCameraError("Failed to post. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setCameraError('Image is too large. Please select an image under 5MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string);
+      setLoading(true);
+      setCameraError('');
+      try {
+        const compressedBase64 = await compressImage(file, 1080, 0.8);
+        const hostedUrl = await uploadImageToImgBB(compressedBase64);
+        setImageUrl(hostedUrl);
         setShowImageInput(true);
-        setCameraError('');
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Upload error:", err);
+        setCameraError("Failed to upload image. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -63,7 +67,7 @@ export default function CreatePost({ familyId }: CreatePostProps) {
     <div className="bg-white sm:rounded-xl border-b sm:border border-gray-200 p-4 mb-2 sm:mb-6">
       <div className="flex gap-3">
         <img
-          src={auth.currentUser?.photoURL || ''}
+          src={auth.currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.currentUser?.displayName || 'User')}&background=random`}
           alt={auth.currentUser?.displayName || ''}
           className="w-10 h-10 rounded-full border border-gray-200 object-cover"
           referrerPolicy="no-referrer"
@@ -88,37 +92,26 @@ export default function CreatePost({ familyId }: CreatePostProps) {
                 {cameraError}
               </motion.div>
             )}
-            {showImageInput && (
+            {showImageInput && imageUrl && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="space-y-2 mt-2"
+                className="space-y-2 mt-2 relative"
               >
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Paste image URL or capture photo..."
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
-                  />
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 max-h-[300px]">
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   <button
                     type="button"
                     onClick={() => {
                       setImageUrl('');
                       setShowImageInput(false);
                     }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
+                    className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors backdrop-blur-sm"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                {imageUrl && (
-                  <div className="relative rounded-xl overflow-hidden border border-gray-200 max-h-[300px]">
-                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                )}
               </motion.div>
             )}
           </AnimatePresence>

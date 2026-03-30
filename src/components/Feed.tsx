@@ -61,7 +61,7 @@ export default function Feed({ familyId }: FeedProps) {
 
   return (
     <div className="space-y-0 sm:space-y-6">
-      <Stories familyMembers={[]} />
+      <Stories familyId={familyId} />
 
       <div className="bg-white sm:rounded-xl border-b sm:border border-gray-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1 min-w-0">

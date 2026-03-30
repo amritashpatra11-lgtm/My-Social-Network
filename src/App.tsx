@@ -33,9 +33,9 @@ export default function App() {
             // Create user doc if it doesn't exist
             await setDoc(doc(db, 'users', firebaseUser.uid), {
               uid: firebaseUser.uid,
-              displayName: firebaseUser.displayName,
-              email: firebaseUser.email,
-              photoURL: firebaseUser.photoURL,
+              displayName: firebaseUser.displayName || 'Family Member',
+              email: firebaseUser.email || '',
+              photoURL: firebaseUser.photoURL || null,
               familyId: null,
               role: 'member'
             });
@@ -114,7 +114,7 @@ export default function App() {
               animate={{ opacity: 1 }}
             >
               {activeTab === 'home' && <Feed familyId={familyId} />}
-              {activeTab === 'search' && <Search />}
+              {activeTab === 'search' && <Search familyId={familyId} />}
               {activeTab === 'activity' && <Activity />}
               {activeTab === 'profile' && <Profile familyId={familyId} />}
             </motion.div>
@@ -130,7 +130,7 @@ export default function App() {
             <button className="p-2 text-gray-900 hover:text-gray-600 transition-colors" onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><PlusSquare className="w-6 h-6" /></button>
             <button className={`p-2 transition-colors ${activeTab === 'profile' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`} onClick={() => setActiveTab('profile')}>
               <img
-                src={user.photoURL || ''}
+                src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=random`}
                 alt={user.displayName || ''}
                 className={`w-7 h-7 rounded-full border object-cover ${activeTab === 'profile' ? 'border-gray-900' : 'border-gray-200'}`}
                 referrerPolicy="no-referrer"
